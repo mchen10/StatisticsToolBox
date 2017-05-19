@@ -2,10 +2,18 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
 
 import javax.swing.JPanel;
 
-public class RegressionDisplay extends JPanel {
+import flanagan.analysis.Regression;
+
+public class RegressionDisplay extends JPanel implements KeyListener, MouseListener, MouseMotionListener{
 
 	//graph variables
 	private double scale = 0;
@@ -13,14 +21,48 @@ public class RegressionDisplay extends JPanel {
 	
 	//equation variables
 	private double[] coeffs = new double[100];
+	private int degree;
+	private boolean isEquation = false;
 	
 	public RegressionDisplay() {
-		super();
+		//super();
 		
 	}
 	
-	public void createEquation(double[][] dataSet) {
+	public void createEquation(double[] xdata, double[] ydata) {
+		Regression regress = new Regression(xdata, ydata);
 		
+		double leastMedianError = 100000000;
+		double[] bestEstimates = new double[1];
+		int bestdegree = -1;
+		
+		double[] temp;
+		for (int i = 0; i < 100; i++) {
+			regress.polynomial(i);
+			temp = regress.getBestEstimatesErrors();
+			Arrays.sort(temp);
+			if (temp[temp.length / 2] < leastMedianError) {
+				leastMedianError = temp[temp.length / 2];
+				bestEstimates = regress.getBestEstimates();
+				bestdegree = i;
+			}
+		}
+		
+		for (int i = 0; i < bestEstimates.length; i++) {
+			coeffs[i] = bestEstimates[i];
+		}
+		degree = bestdegree;
+		
+		isEquation = true;
+		repaint();
+	}
+	
+	public double calculate(double x) {
+		double ans = 0;
+		for (int i = 0; i < degree; i++) {
+			ans += Math.pow(x, i) * coeffs[i];
+		}
+		return ans;
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -79,7 +121,134 @@ public class RegressionDisplay extends JPanel {
 			}
 		}
 			
+		if (isEquation) {
+			double yfrom, yto = 0, xfrom, xto = 0;
+			boolean first = true;
+			int min = centerY - 5 * interval, max = centerY + 5 * interval;
+			for(double i = centerX - 5 * interval; i < centerX + 5 * interval; i += interval){
+				xfrom = xto;
+				yfrom = yto;
+				
+				//new x = i, new y = calculate(i)
+				
+				xto = i;
+				yto = calculate(i);
+				
+				int drawxto = -1, drawyto = -1, drawxfrom = -1, drawyfrom = -1;;
+				if (yfrom > min && yfrom < max && yto > min && yto < max) {
+					drawxto = (int)((i - (centerX - 5 * interval)) / 600 + 50);
+					drawyto = (int)((yto - max) / 400 + 25);
+				} else if (yfrom > min && yfrom < max) {
+					double slope = (yto - yfrom) / (xto - xfrom);
+					if (yto < min) {
+						double interX = slope * (min - yfrom) + xfrom;
+						drawxto = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
+						drawyto = min;
+					} else if (yto > max) {
+						double interX = slope * (max - yfrom) + xfrom;
+						drawxto = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
+						drawyto = max;
+					}
+				} else if (yto > min && yto < max) {
+					double slope = (yto - yfrom) / (xto - xfrom);
+					if (yfrom < min) {
+						double interX = slope * (min - yfrom) + xfrom;
+						drawxfrom = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
+						drawyfrom = min;
+					} else if (yfrom > max) {
+						double interX = slope * (max - yfrom) + xfrom;
+						drawxfrom = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
+						drawyfrom = max;
+					}
+				} 
+				
+				if (drawxfrom == -1) {
+					drawxfrom = (int)((xto - (centerX - 5 * interval)) / 600 + 50);
+					drawyfrom = (int)((yto - max) / 400 + 25);
+				}
+				
+				
+				if(!first)
+					g.drawLine(drawxfrom, drawyfrom, drawxto, drawyto);
+				else 
+					first = false;
+			}
+		}
 	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		if (arg0.getKeyCode() == KeyEvent.VK_PLUS) {
+			scale += 1;
+		} else if (arg0.getKeyCode() == KeyEvent.VK_MINUS) {
+			scale -= 1;
+		}
+		
+		repaint();
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private boolean mousePressed = false;
+	private int startX = -1, startY = -1;
 	
-	
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		mousePressed = true;
+		startX = e.getX();
+		startY = e.getY();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		mousePressed = false;
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if (mousePressed) {
+			int changeX = e.getX() - startX;
+			int changeY = e.getY() - startY;
+			centerX += changeX * Math.pow(2, scale);
+			centerY += changeY * Math.pow(2,  scale);
+		}
+	}
 }

@@ -15,6 +15,9 @@ public class DisplayBackground extends JPanel {
 		setLayout(layout);
 		
 		regression = new RegressionDisplay();
+		this.addMouseListener(regression);
+		this.addMouseMotionListener(regression);
+		this.addKeyListener(regression);
 		
 		this.add(regression, "1");
 		
