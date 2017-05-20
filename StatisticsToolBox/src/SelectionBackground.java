@@ -1,14 +1,20 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 public class SelectionBackground extends JPanel implements ActionListener {
 	
 	private JComboBox importList;
 	private JComboBox displayList; 
+	
+	private JButton selectButton;
+	private JFileChooser fileChooser;
 	
 	public SelectionBackground() {
 		super();
@@ -27,8 +33,13 @@ public class SelectionBackground extends JPanel implements ActionListener {
 		displayList.setSelectedIndex(0);
 		displayList.addActionListener(this);
 		
-		add(importList);
+		fileChooser = new JFileChooser();
+		selectButton = new JButton("Choose File");
+		selectButton.addActionListener(this);
+		
+		add(importList); 
 		add(displayList);
+		add(selectButton);
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
@@ -38,8 +49,17 @@ public class SelectionBackground extends JPanel implements ActionListener {
 			String imp = (String) importList.getSelectedItem();
 		} else if (arg0.getSource() == displayList) {
 			String display = (String) displayList.getSelectedItem();
+		} else if (arg0.getSource() == selectButton) {
+			int returnVal = fileChooser.showOpenDialog(SelectionBackground.this);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                //This is where a real application would open the file.
+                
+            } else {
+            	
+            }
 		}
 		
 	}
 }
-

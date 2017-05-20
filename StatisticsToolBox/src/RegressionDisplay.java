@@ -2,18 +2,21 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Arrays;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import flanagan.analysis.Regression;
 
-public class RegressionDisplay extends JPanel implements KeyListener, MouseListener, MouseMotionListener{
+public class RegressionDisplay extends JPanel implements MouseListener, MouseMotionListener{
 
 	//graph variables
 	private double scale = 0;
@@ -26,6 +29,81 @@ public class RegressionDisplay extends JPanel implements KeyListener, MouseListe
 	
 	public RegressionDisplay() {
 		//super();
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), "increaseSize");
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), "decreaseSize");
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('w'), "moveUp");
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('s'), "moveDown");
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('a'), "moveLeft");
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('d'), "moveRight");
+		
+		getActionMap().put("increaseSize", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				scale += 1;
+				repaint();
+			}
+			
+		});
+		
+		getActionMap().put("decreaseSize", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if (scale > 0) {
+					scale -= 1;
+				}
+				repaint();
+			}
+			
+		});
+		
+		getActionMap().put("moveUp", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				centerY += Math.pow(2,  scale);
+				repaint();
+			}
+			
+		});
+		
+		getActionMap().put("moveDown", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				centerY -= Math.pow(2,  scale);
+				repaint();
+			}
+			
+		});
+		
+		getActionMap().put("moveLeft", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				centerX -= Math.pow(2,  scale);
+				repaint();
+			}
+			
+		});
+		
+		getActionMap().put("moveRight", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				centerX += Math.pow(2,  scale);
+				repaint();
+			}
+			
+		});
+		
 		
 	}
 	
@@ -66,6 +144,8 @@ public class RegressionDisplay extends JPanel implements KeyListener, MouseListe
 	}
 	
 	public void paintComponent(Graphics g) {
+		
+		super.paintComponent(g);
 		
 		Graphics2D g2 = (Graphics2D) g;
 		
@@ -109,12 +189,12 @@ public class RegressionDisplay extends JPanel implements KeyListener, MouseListe
 			g2.drawLine(51, 224, 648, 224);
 		}
 		for (int i = 1; i <= 5; i++) {
-			g.drawString((centerY - i * interval) + "", 21, 229 - 40 * i);
+			g.drawString((centerY + i * interval) + "", 21, 229 - 40 * i);
 			if (centerY - i * interval == 0) {
 				g2.setStroke(new BasicStroke(3));
 				g2.drawLine(51, 224 - 40 * i, 648, 224 - 40 * i);
 			}
-			g.drawString((centerY + i * interval) + "", 21, 229 + 40 * i);
+			g.drawString((centerY - i * interval) + "", 21, 229 + 40 * i);
 			if (centerY + i * interval == 0) {
 				g2.setStroke(new BasicStroke(3));
 				g2.drawLine(51, 224 + 40 * i, 648, 224 + 40 * i);
@@ -175,31 +255,7 @@ public class RegressionDisplay extends JPanel implements KeyListener, MouseListe
 			}
 		}
 	}
-
-	@Override
-	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		if (arg0.getKeyCode() == KeyEvent.VK_PLUS) {
-			scale += 1;
-		} else if (arg0.getKeyCode() == KeyEvent.VK_MINUS) {
-			scale -= 1;
-		}
 		
-		repaint();
-	}
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -227,6 +283,8 @@ public class RegressionDisplay extends JPanel implements KeyListener, MouseListe
 		mousePressed = true;
 		startX = e.getX();
 		startY = e.getY();
+		
+		System.out.println(startX + " " + startY);
 	}
 
 	@Override
@@ -238,17 +296,18 @@ public class RegressionDisplay extends JPanel implements KeyListener, MouseListe
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+		if (mousePressed) {
+			double changeX = (e.getX() - startX)/137.0;
+			double changeY = (e.getY() - startY)/137.0;
+			centerX -= changeX * Math.pow(2, scale);
+			centerY += changeY * Math.pow(2,  scale);
+			
+			repaint();
+		}
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
-		if (mousePressed) {
-			int changeX = e.getX() - startX;
-			int changeY = e.getY() - startY;
-			centerX += changeX * Math.pow(2, scale);
-			centerY += changeY * Math.pow(2,  scale);
-		}
 	}
 }

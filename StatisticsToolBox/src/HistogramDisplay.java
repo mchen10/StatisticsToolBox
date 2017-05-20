@@ -26,8 +26,17 @@ public class HistogramDisplay extends JPanel implements ComponentListener, Mouse
         ArrayList<Double> data = new ArrayList<Double>();
         data.add(-4.);
         data.add(-2.);
+        data.add(10.0);  
+        data.add(10.0);
+        data.add(10.0);   
+        data.add(10.0);    
+        data.add(10.0); 
+        data.add(10.0);   
         data.add(10.0);
         data.add(12.0);
+        data.add(12.0);
+        data.add(12.0);
+        data.add(-10.);
         data.add(12.0);
         data.add(12.0);
         data.add(17.0);
