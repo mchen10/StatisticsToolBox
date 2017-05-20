@@ -7,6 +7,7 @@ public class DisplayBackground extends JPanel {
 	private CardLayout layout;
 	
 	private RegressionDisplay regression;
+	private HistogramDisplay histogram;
 	
 	public DisplayBackground() {
 		super();
@@ -20,7 +21,18 @@ public class DisplayBackground extends JPanel {
 		regression.setFocusable(true);
 		regression.requestFocusInWindow();
 		
-		this.add(regression, "1");
+		histogram = new HistogramDisplay();
 		
+		this.add(regression, "1");
+		this.add(histogram, "2");
+	}
+	
+	public void changePanel(String next) {
+		layout.show(this, next);
+		requestFocus();
+	}
+	
+	public void setData(double[] xdata, double[] ydata) {
+		regression.createEquation(xdata, ydata);
 	}
 }

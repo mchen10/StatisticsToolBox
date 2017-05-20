@@ -18,7 +18,7 @@ public class Main extends JFrame {
 	    
 	    main.setLayout(new BoxLayout(main, BoxLayout.X_AXIS));
 	    
-	    selection = new SelectionBackground();
+	    selection = new SelectionBackground(this);
 	    display = new DisplayBackground();
 	    
 	    main.add(selection);
@@ -26,6 +26,14 @@ public class Main extends JFrame {
 	    
 	    add(main);
 	    setVisible(true);
+	}
+	
+	public void setEquation(double[] xdata, double[] ydata) {
+		display.setData(xdata, ydata);
+	}
+	
+	public void changePanel(String next) {
+		display.changePanel(next);
 	}
 	
 	public static void main(String[] args) {
