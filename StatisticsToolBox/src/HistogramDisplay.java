@@ -3,49 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import javax.swing.event.*;
 
-/**
- *
- * @author Anthony Ma
- */
 public class HistogramDisplay extends JPanel implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener
 {
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args)
-    {
-        JFrame frame = new JFrame();
-        HistogramDisplay ch = new HistogramDisplay();
-        ArrayList<Double> data = new ArrayList<Double>();
-        data.add(-4.);
-        data.add(-2.);
-        data.add(10.0);  
-        data.add(10.0);
-        data.add(10.0);   
-        data.add(10.0);    
-        data.add(10.0); 
-        data.add(10.0);   
-        data.add(10.0);
-        data.add(12.0);
-        data.add(12.0);
-        data.add(12.0);
-        data.add(-10.);
-        data.add(12.0);
-        data.add(12.0);
-        data.add(17.0);
-        ch.setData(data);
-        frame.add(ch);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.setVisible(true);
-    }
     protected ArrayList<Double> data = new ArrayList<Double>();
     protected int bucketSize = 5, xPos = 0, bucketPixelWidth = 50, freqPixelHeight = 10, padding = 50, lastXPos, zoomSensitivity = 1;
     protected Color barColor = Color.GREEN;
@@ -58,11 +23,14 @@ public class HistogramDisplay extends JPanel implements ComponentListener, Mouse
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
     }
-    public void setData(Iterable<Double> list)
+    public void setData(double[] list)
     {
         for (Double d : list)
             data.add(d);
+       
         Collections.sort(data);
+        
+        repaint();
     }
     @Override
     public void paintComponent(Graphics gSuper)
@@ -95,7 +63,7 @@ public class HistogramDisplay extends JPanel implements ComponentListener, Mouse
             g.setColor(barColor);
             g.fillRect(curX, this.getHeight() - freq * freqPixelHeight - padding, bucketPixelWidth, freq * freqPixelHeight);
             g.setColor(Color.BLACK);
-            g.drawString(nextBucket - bucketSize + "", curX + bucketPixelWidth / 2, this.getHeight() - padding / 2);
+            g.drawString("[" + (nextBucket - bucketSize) + " ," + (nextBucket) + ")", curX, this.getHeight() - padding / 2);
             nextBucket += bucketSize;
             curX += bucketPixelWidth;
         }

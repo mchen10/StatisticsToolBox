@@ -108,6 +108,10 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 	}
 	
 	public void createEquation(double[] xdata, double[] ydata) {
+		for (int i = 0; i < xdata.length; i++) {
+			System.out.println(xdata[i] + " " +ydata[i]);
+		}
+		
 		Regression regress = new Regression(xdata, ydata);
 		
 		double leastMedianError = 100000000;
@@ -115,7 +119,7 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 		int bestdegree = -1;
 		
 		double[] temp;
-		for (int i = 0; i < 100; i++) {
+		for (int i = 1; i < 100; i++) {
 			regress.polynomial(i);
 			temp = regress.getBestEstimatesErrors();
 			Arrays.sort(temp);

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -11,13 +12,14 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 public class SelectionBackground extends JPanel implements ActionListener {
 	
@@ -78,11 +80,13 @@ public class SelectionBackground extends JPanel implements ActionListener {
                 
                 if (importList.getSelectedItem() == "Excel") {
                 	 try {
-     					POIFSFileSystem pofile = new POIFSFileSystem(new FileInputStream(file));
-     					HSSFWorkbook excelsheet = new HSSFWorkbook(pofile);
-     					HSSFSheet sheet = excelsheet.getSheetAt(0);
-     					HSSFRow row;
-     					HSSFCell cell;
+                		InputStream input = new FileInputStream(file);
+                		 
+                		Workbook workbook = WorkbookFactory.create(input);
+                		Sheet sheet = workbook.getSheetAt(0);
+     					
+     					Row row;
+     					Cell cell;
 
      					int rows = sheet.getPhysicalNumberOfRows();
 
@@ -98,7 +102,7 @@ public class SelectionBackground extends JPanel implements ActionListener {
      					}
 
      					double[] xdata = new double[rows];
-     					double[] ydata = new double[cols];
+     					double[] ydata = new double[rows];
      					
      				    for(int r = 0; r < rows; r++) {
      				        row = sheet.getRow(r);
@@ -117,13 +121,23 @@ public class SelectionBackground extends JPanel implements ActionListener {
      				            }
      				        }
      				    }
+     				    
+     				    main.setEquation(xdata, ydata);
+     				    
+     				    
      				} catch (FileNotFoundException e) {
      					// TODO Auto-generated catch block
      					e.printStackTrace();
      				} catch (IOException e) {
      					// TODO Auto-generated catch block
      					e.printStackTrace();
-     				}
+     				} catch (EncryptedDocumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InvalidFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
                 
             } else {

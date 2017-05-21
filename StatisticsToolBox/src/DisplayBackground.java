@@ -34,5 +34,6 @@ public class DisplayBackground extends JPanel {
 	
 	public void setData(double[] xdata, double[] ydata) {
 		regression.createEquation(xdata, ydata);
+		histogram.setData(ydata);
 	}
 }
