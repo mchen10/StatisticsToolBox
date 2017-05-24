@@ -14,8 +14,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import flanagan.analysis.Regression;
-
 public class RegressionDisplay extends JPanel implements MouseListener, MouseMotionListener{
 
 	//graph variables
@@ -108,18 +106,17 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 	}
 	
 	public void createEquation(double[] xdata, double[] ydata) {
-		for (int i = 0; i < xdata.length; i++) {
-			System.out.println(xdata[i] + " " +ydata[i]);
-		}
 		
 		Regression regress = new Regression(xdata, ydata);
 		
-		double leastMedianError = 100000000;
+		//nData0 = 4
+		
+		double leastMedianError = 1000700000;
 		double[] bestEstimates = new double[1];
 		int bestdegree = -1;
 		
 		double[] temp;
-		for (int i = 1; i < 100; i++) {
+		for (int i = 1; i < ydata.length - 1; i++) {
 			regress.polynomial(i);
 			temp = regress.getBestEstimatesErrors();
 			Arrays.sort(temp);
@@ -132,7 +129,9 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 		
 		for (int i = 0; i < bestEstimates.length; i++) {
 			coeffs[i] = bestEstimates[i];
+//			System.out.print(coeffs[i] + " ");
 		}
+//		System.out.println();
 		degree = bestdegree;
 		
 		isEquation = true;
@@ -206,7 +205,7 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 		}
 			
 		if (isEquation) {
-			double yfrom, yto = 0, xfrom, xto = 0;
+			double yfrom , yto = 0, xfrom , xto = 0;
 			boolean first = true;
 			int min = centerY - 5 * interval, max = centerY + 5 * interval;
 			for(double i = centerX - 5 * interval; i < centerX + 5 * interval; i += interval){
@@ -245,6 +244,9 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 						drawyfrom = max;
 					}
 				} 
+	
+				
+				System.out.println(drawxfrom + " " + drawyfrom + " " + drawxto + " " + drawyto);
 				
 				if (drawxfrom == -1) {
 					drawxfrom = (int)((xto - (centerX - 5 * interval)) / 600 + 50);
@@ -287,8 +289,6 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 		mousePressed = true;
 		startX = e.getX();
 		startY = e.getY();
-		
-		System.out.println(startX + " " + startY);
 	}
 
 	@Override
