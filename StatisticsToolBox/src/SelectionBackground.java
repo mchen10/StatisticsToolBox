@@ -39,7 +39,7 @@ public class SelectionBackground extends JPanel implements ActionListener {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		//select import type
-		String[] importType = {"CSV", "Excel"};
+		String[] importType = {"CSV"};
 		
 		importList = new JComboBox(importType);
 		importList.setSelectedIndex(1);

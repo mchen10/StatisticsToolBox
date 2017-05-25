@@ -1,12 +1,15 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.font.TextAttribute;
+import java.text.AttributedString;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.AbstractAction;
@@ -120,13 +123,33 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 			regress.polynomial(i);
 			temp = regress.getBestEstimatesErrors();
 			Arrays.sort(temp);
-			if (temp[temp.length / 2] < leastMedianError) {
-				leastMedianError = temp[temp.length / 2];
-				bestEstimates = regress.getBestEstimates();
-				bestdegree = i;
+			
+			System.out.print("Coeffs: ");
+			for (int j = 0; j < regress.getBestEstimates().length; j++) {
+				System.out.print(regress.getBestEstimates()[j] + " ");
+			}
+			System.out.println();
+			
+			System.out.print("Errors: ");
+			for (int j = 0; j < temp.length; j++) {
+				System.out.print(temp[j] + " ");
+			}
+			System.out.println();
+			if (temp.length % 2 == 0) {
+				if ((temp[temp.length / 2] + temp[temp.length / 2 - 1]) / 2 < leastMedianError) {
+					leastMedianError = (temp[temp.length / 2] + temp[temp.length / 2 - 1]) / 2;
+					bestEstimates = regress.getBestEstimates();
+					bestdegree = i;
+				}
+			} else {
+				if (temp[temp.length / 2] < leastMedianError) {
+					leastMedianError = temp[temp.length / 2];
+					bestEstimates = regress.getBestEstimates();
+					bestdegree = i;
+				}
 			}
 		}
-		
+
 		for (int i = 0; i < bestEstimates.length; i++) {
 			coeffs[i] = bestEstimates[i];
 //			System.out.print(coeffs[i] + " ");
@@ -140,7 +163,8 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 	
 	public double calculate(double x) {
 		double ans = 0;
-		for (int i = 0; i < degree; i++) {
+		System.out.println(degree);
+		for (int i = 0; i <= degree; i++) {
 			ans += Math.pow(x, i) * coeffs[i];
 		}
 		return ans;
@@ -204,11 +228,11 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 			}
 		}
 			
+		g.setColor(Color.BLACK);
 		if (isEquation) {
-			double yfrom , yto = 0, xfrom , xto = 0;
-			boolean first = true;
+			double yfrom , yto = calculate(centerX - 5 * interval), xfrom , xto = centerX - 5 * interval;
 			int min = centerY - 5 * interval, max = centerY + 5 * interval;
-			for(double i = centerX - 5 * interval; i < centerX + 5 * interval; i += interval){
+			for(double i = centerX - 4 * interval; i <= centerX + 5 * interval; i += (interval/5.0)){
 				xfrom = xto;
 				yfrom = yto;
 				
@@ -217,48 +241,94 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 				xto = i;
 				yto = calculate(i);
 				
+				System.out.println("Original" + xfrom + " " + yfrom + " " + xto + " " + yto);
+				System.out.println("Min: " + min + " " + "Max: " + max);
+				
 				int drawxto = -1, drawyto = -1, drawxfrom = -1, drawyfrom = -1;;
-				if (yfrom > min && yfrom < max && yto > min && yto < max) {
-					drawxto = (int)((i - (centerX - 5 * interval)) / 600 + 50);
-					drawyto = (int)((yto - max) / 400 + 25);
-				} else if (yfrom > min && yfrom < max) {
+				if (yfrom >= min && yfrom <= max && yto >= min && yto <= max) {
+					System.out.println("Hi");
+					drawxto = (int)((xto - (centerX - 5 * interval)) / (10 * interval) * 600.0 + 50);
+					drawyto = (int)((max - yto) / (10 * interval) * 400.0 + 25);
+					drawxfrom = (int)((xfrom - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+					drawyfrom = (int)((max - yfrom) / (10 * interval) * 400.0 + 25);
+				} else if (yfrom >= min && yfrom <= max) {
 					double slope = (yto - yfrom) / (xto - xfrom);
-					if (yto < min) {
-						double interX = slope * (min - yfrom) + xfrom;
-						drawxto = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
-						drawyto = min;
-					} else if (yto > max) {
-						double interX = slope * (max - yfrom) + xfrom;
-						drawxto = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
-						drawyto = max;
+					if (yto <= min) {
+						double interX = (1/slope) * (min - yfrom) + xfrom;
+						drawxto = (int)((interX - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyto = (int)((max - min) / (10 * interval) * 400.0 + 25);
+						drawxfrom = (int)((xfrom - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyfrom = (int)((max - yfrom) / (10 * interval) * 400.0 + 25);
+					} else if (yto >= max) {
+						double interX = (1/slope) * (max - yfrom) + xfrom;
+						drawxto = (int)((interX - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyto = (int)((max - max) / (10 * interval) * 400.0 + 25);
+						drawxfrom = (int)((xfrom - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyfrom = (int)((max - yfrom) / (10 * interval) * 400.0 + 25);
 					}
-				} else if (yto > min && yto < max) {
+				} else if (yto >= min && yto <= max) {
 					double slope = (yto - yfrom) / (xto - xfrom);
-					if (yfrom < min) {
-						double interX = slope * (min - yfrom) + xfrom;
-						drawxfrom = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
-						drawyfrom = min;
-					} else if (yfrom > max) {
-						double interX = slope * (max - yfrom) + xfrom;
-						drawxfrom = (int)((interX - (centerX - 5 * interval)) / 600 + 50);
-						drawyfrom = max;
+					if (yfrom <= min) {
+						double interX = (1/slope) * (min - yto) + xto;
+						drawxfrom = (int)((interX - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyfrom = (int)((max - min) / (10 * interval) * 400.0 + 25);
+						drawxto = (int)((xto - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyto = (int)((max - yto) / (10 * interval) * 400.0 + 25);
+					} else if (yfrom >= max) {
+						double interX = (1.0/slope) * (max - yto) + xto;
+						System.out.println(slope + " " + interX);
+						drawxfrom = (int)((interX - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyfrom = (int)((max - max) / (10 * interval) * 400.0 + 25);
+						drawxto = (int)((xto - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
+						drawyto = (int)((max - yto) / (10 * interval) * 400.0 + 25);
 					}
 				} 
-	
-				
-				System.out.println(drawxfrom + " " + drawyfrom + " " + drawxto + " " + drawyto);
-				
-				if (drawxfrom == -1) {
-					drawxfrom = (int)((xto - (centerX - 5 * interval)) / 600 + 50);
-					drawyfrom = (int)((yto - max) / 400 + 25);
-				}
 				
 				
-				if(!first)
+				
+				System.out.println("Draw" + drawxfrom + " " + drawyfrom + " " + drawxto + " " + drawyto);
+				System.out.println();
+				
+//				if (drawxfrom == 50) {
+//					g.setColor(Color.RED);
+//					System.out.println("hi");
+//				} else {
+//					g.setColor(Color.BLACK);
+//				}
+				
+				if (drawxto != -1 && drawxfrom != -1) {
 					g.drawLine(drawxfrom, drawyfrom, drawxto, drawyto);
-				else 
-					first = false;
+				}
 			}
+			
+			String temp = "";
+			for (int i = degree; i > 0; i--) {
+				if (Double.compare(coeffs[i], 0) == 0) {
+					continue;
+				}
+				temp += coeffs[i]+"x" + i + " + ";
+			}
+			if (Double.compare(coeffs[0], 0) != 0) {
+				temp += coeffs[0];
+			} else {
+				temp = temp.substring(0, temp.length() - 2);
+			}
+			
+			ArrayList<Integer> temp2 = new ArrayList<Integer>();
+			for (int i = 0; i < temp.length(); i++) {
+				if (temp.charAt(i) == 'x') {
+					temp2.add(i + 1);
+				}
+			}
+			
+			AttributedString current = new AttributedString(temp);
+			for (int i = 0; i < temp2.size(); i++) {
+				current.addAttribute(TextAttribute.SUPERSCRIPT, TextAttribute.SUPERSCRIPT_SUPER, temp2.get(i), temp2.get(i) + 1);
+			}
+			
+			g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+			
+			g.drawString(current.getIterator(), 335, 460);
 		}
 	}
 		

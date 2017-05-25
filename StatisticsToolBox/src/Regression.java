@@ -316,7 +316,7 @@ public class Regression
     this.dualErrorsRequired = false;
     this.nParam = (paramInt + 1);
     this.degreesOfFreedom = (this.nData - this.nParam);
-    System.out.println(paramInt + " " + nParam + " " + nData);
+    //System.out.println(paramInt + " " + nParam + " " + nData);
     if ((this.degreesOfFreedom < 1) && (!this.ignoreDofFcheck)) {
       throw new IllegalArgumentException("Degrees of freedom must be greater than 0");
     }
@@ -712,6 +712,7 @@ public class Regression
     this.bestSd = new double[i];
     this.tValues = new double[i];
     this.pValues = new double[i];
+    
     
     double[][] arrayOfDouble = new double[j][j];
     double[] arrayOfDouble2 = new double[j];
