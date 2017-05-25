@@ -66,11 +66,11 @@ public class SelectionBackground extends JPanel implements ActionListener {
 			String imp = (String) importList.getSelectedItem();
 		} else if (arg0.getSource() == displayList) {
 			String display = (String) displayList.getSelectedItem();
-			if (display == "Regression") {
+			if (display == "Regression")  {
 				main.changePanel("1");
 			} else if (display == "Histogram") {
 				main.changePanel("2");
-			}
+			} 
 		} else if (arg0.getSource() == selectButton) {
 			int returnVal = fileChooser.showOpenDialog(SelectionBackground.this);
 

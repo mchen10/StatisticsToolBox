@@ -32,6 +32,8 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 	private double[] xData;
 	private double[] yData;
 	
+	private int drawPoint = -1;
+	
 	public RegressionDisplay() {
 		//super();
 		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), "increaseSize");
@@ -176,7 +178,7 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 	
 	public double calculate(double x) {
 		double ans = 0;
-		System.out.println(degree);
+		//System.out.println(degree);
 		for (int i = 0; i <= degree; i++) {
 			ans += Math.pow(x, i) * coeffs[i];
 		}
@@ -326,7 +328,7 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 					double drawyto = (int)((centerY + 5 * interval - pointY) / (10 * interval) * 400.0 + 25);
 					g.fillOval((int)drawxto - 5, (int)drawyto - 5, 10, 10);
 					
-					System.out.println(pointX + " " + pointY + " " +drawxto + " " + drawyto);
+//					System.out.println(pointX + " " + pointY + " " +drawxto + " " + drawyto);
 				}
 			}
 			
@@ -357,9 +359,25 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 				current.addAttribute(TextAttribute.SUPERSCRIPT, TextAttribute.SUPERSCRIPT_SUPER, temp2.get(i), temp2.get(i) + 1);
 			}
 			
-			g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
-			
 			g.drawString(current.getIterator(), 335, 460);
+				
+			System.out.println(drawPoint);
+			if (drawPoint != -1) {
+				g.setColor(Color.WHITE);
+				int drawxto = (int)((xData[drawPoint] - (centerX - 5 * interval)) / (10 * interval) * 600.0 + 50);
+				int drawyto = (int)((centerY + 5 * interval - yData[drawPoint]) / (10 * interval) * 400.0 + 25);
+				g.fillRect(drawxto, drawyto, 100, 75);
+				g.setColor(Color.BLACK);
+				g2.setStroke(new BasicStroke(2));
+				g.drawRect(drawxto, drawyto, 100, 75);
+				
+				g.drawString("(" + xData[drawPoint] + "," + yData[drawPoint] + ")", drawxto + 25, drawyto + 20);
+				
+				double residual = yData[drawPoint] - calculate(xData[drawPoint]);
+				g.drawString("Residual: " + residual, drawxto + 15, drawyto + 40);
+				
+				g.drawString("Data: " + (drawPoint + 1), drawxto + 30, drawyto + 60);
+			}
 		}
 	}
 		
@@ -413,6 +431,32 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
+		int x = e.getX(), y = e.getY();
+		
+		if (isEquation) {
+			
+			int interval = (int) Math.pow(2, scale);
+			
+			boolean found = false;
+			
+			for (int i = 0; i < xData.length; i++) {
+				double drawxto = (int)((xData[i] - (centerX - 5 * interval)) / (10 * interval) * 600.0 + 50);
+				double drawyto = (int)((centerY + 5 * interval - yData[i]) / (10 * interval) * 400.0 + 25);
+				
+//				System.out.println(x + " " + y + " " + (drawxto - 5) + " " + (drawxto + 5) + " " + (drawyto - 5) + " " + (drawyto + 5));
+				 
+				if (x >= drawxto - 5 && x <= drawxto + 5 && y >= drawyto - 5 && y <= drawyto + 5) {
+					drawPoint = i;
+					
+					found = true;
+				}
+			}
+			
+			if (!found) {
+				drawPoint = -1;
+			}
+			
+			repaint();
+		}
 	}
 }
