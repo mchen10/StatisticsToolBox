@@ -39,10 +39,10 @@ public class SelectionBackground extends JPanel implements ActionListener {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		//select import type
-		String[] importType = {"CSV"};
+		String[] importType = {"Excel"};
 		
 		importList = new JComboBox(importType);
-		importList.setSelectedIndex(1);
+		importList.setSelectedIndex(0);
 		importList.addActionListener(this);
 		
 		String[] displayType = {"Regression", "Histogram"};

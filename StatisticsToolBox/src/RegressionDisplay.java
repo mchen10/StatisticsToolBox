@@ -28,6 +28,10 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 	private int degree;
 	private boolean isEquation = false;
 	
+	//original data
+	private double[] xData;
+	private double[] yData;
+	
 	public RegressionDisplay() {
 		//super();
 		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), "increaseSize");
@@ -110,6 +114,15 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 	
 	public void createEquation(double[] xdata, double[] ydata) {
 		
+		this.xData = new double[xdata.length];
+		this.yData = new double[ydata.length];
+		for (int i = 0; i < xdata.length; i++) {
+			xData[i] = xdata[i];
+		}
+		for (int i = 0; i < ydata.length; i++) {
+			yData[i] = ydata[i];
+		}
+		
 		Regression regress = new Regression(xdata, ydata);
 		
 		//nData0 = 4
@@ -124,17 +137,17 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 			temp = regress.getBestEstimatesErrors();
 			Arrays.sort(temp);
 			
-			System.out.print("Coeffs: ");
-			for (int j = 0; j < regress.getBestEstimates().length; j++) {
-				System.out.print(regress.getBestEstimates()[j] + " ");
-			}
-			System.out.println();
-			
-			System.out.print("Errors: ");
-			for (int j = 0; j < temp.length; j++) {
-				System.out.print(temp[j] + " ");
-			}
-			System.out.println();
+//			System.out.print("Coeffs: ");
+//			for (int j = 0; j < regress.getBestEstimates().length; j++) {
+//				System.out.print(regress.getBestEstimates()[j] + " ");
+//			}
+//			System.out.println();
+//			
+//			System.out.print("Errors: ");
+//			for (int j = 0; j < temp.length; j++) {
+//				System.out.print(temp[j] + " ");
+//			}
+//			System.out.println();
 			if (temp.length % 2 == 0) {
 				if ((temp[temp.length / 2] + temp[temp.length / 2 - 1]) / 2 < leastMedianError) {
 					leastMedianError = (temp[temp.length / 2] + temp[temp.length / 2 - 1]) / 2;
@@ -230,6 +243,8 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 			
 		g.setColor(Color.BLACK);
 		if (isEquation) {
+			
+			g.setColor(Color.BLACK);
 			double yfrom , yto = calculate(centerX - 5 * interval), xfrom , xto = centerX - 5 * interval;
 			int min = centerY - 5 * interval, max = centerY + 5 * interval;
 			for(double i = centerX - 4 * interval; i <= centerX + 5 * interval; i += (interval/5.0)){
@@ -241,12 +256,12 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 				xto = i;
 				yto = calculate(i);
 				
-				System.out.println("Original" + xfrom + " " + yfrom + " " + xto + " " + yto);
-				System.out.println("Min: " + min + " " + "Max: " + max);
+//				System.out.println("Original" + xfrom + " " + yfrom + " " + xto + " " + yto);
+//				System.out.println("Min: " + min + " " + "Max: " + max);
 				
 				int drawxto = -1, drawyto = -1, drawxfrom = -1, drawyfrom = -1;;
 				if (yfrom >= min && yfrom <= max && yto >= min && yto <= max) {
-					System.out.println("Hi");
+//					System.out.println("Hi");
 					drawxto = (int)((xto - (centerX - 5 * interval)) / (10 * interval) * 600.0 + 50);
 					drawyto = (int)((max - yto) / (10 * interval) * 400.0 + 25);
 					drawxfrom = (int)((xfrom - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
@@ -276,7 +291,7 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 						drawyto = (int)((max - yto) / (10 * interval) * 400.0 + 25);
 					} else if (yfrom >= max) {
 						double interX = (1.0/slope) * (max - yto) + xto;
-						System.out.println(slope + " " + interX);
+//						System.out.println(slope + " " + interX);
 						drawxfrom = (int)((interX - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
 						drawyfrom = (int)((max - max) / (10 * interval) * 400.0 + 25);
 						drawxto = (int)((xto - (centerX - 5 * interval)) / (10* interval) * 600.0 + 50);
@@ -286,8 +301,8 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 				
 				
 				
-				System.out.println("Draw" + drawxfrom + " " + drawyfrom + " " + drawxto + " " + drawyto);
-				System.out.println();
+//				System.out.println("Draw" + drawxfrom + " " + drawyfrom + " " + drawxto + " " + drawyto);
+//				System.out.println();
 				
 //				if (drawxfrom == 50) {
 //					g.setColor(Color.RED);
@@ -300,6 +315,22 @@ public class RegressionDisplay extends JPanel implements MouseListener, MouseMot
 					g.drawLine(drawxfrom, drawyfrom, drawxto, drawyto);
 				}
 			}
+			
+			
+			g.setColor(Color.RED);
+			for (int i = 0; i < xData.length; i++) {
+				double pointX = xData[i], pointY = yData[i];
+				
+				if (pointX >= centerX - 5 * interval && pointX <= centerX + 5 * interval && pointY >= centerY - 5 * interval && pointY <= centerY + 5 * interval) {
+					double drawxto = (int)((pointX - (centerX - 5 * interval)) / (10 * interval) * 600.0 + 50);
+					double drawyto = (int)((centerY + 5 * interval - pointY) / (10 * interval) * 400.0 + 25);
+					g.fillOval((int)drawxto - 5, (int)drawyto - 5, 10, 10);
+					
+					System.out.println(pointX + " " + pointY + " " +drawxto + " " + drawyto);
+				}
+			}
+			
+			g.setColor(Color.BLACK);
 			
 			String temp = "";
 			for (int i = degree; i > 0; i--) {
